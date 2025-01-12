@@ -1,67 +1,102 @@
 import React, { useState } from "react";
-import { Container, Form, SubContainerSign } from "./styles";
+import axios from "axios";
 
-// Função para validar o email com regex
-const isEmailValid = (email: string) => {
-  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-  return regex.test(email);
-};
-
-const Cadastro: React.FC = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [form, setForm] = useState({
+const RegisterPage = () => {
+  const [formData, setFormData] = useState({
+    nome: "",
     email: "",
-    password: "",
+    senha: "",
+    idade: "",
+    sexo: "Masculino",
   });
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setForm({ ...form, [name]: value });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    // Simula uma requisição ao servidor
-    setTimeout(() => {
-      alert(`Login realizado com sucesso! Email: ${form.email}`);
-      setLoading(false);
-    }, 1000);
-  };
-
-  const isFormValid = () => {
-    return form.email.trim() !== "" && form.password.trim() !== "" && isEmailValid(form.email);
+    try {
+      await axios.post(
+        "https://honey-backend.vercel.app/api/auth/register",
+        formData
+      );
+      alert("Cadastro realizado com sucesso!");
+    } catch (error) {
+      console.error(error);
+      alert("Erro no cadastro, tente novamente!");
+    }
   };
 
   return (
-    <Container>
-      <Form onSubmit={handleSubmit}>
-        <h1>Faça o Login 👋</h1>
-        <input
-          name="email"
-          placeholder="Digite o seu e-mail"
-          onChange={handleChange}
-          type="email"
-          aria-label="Email"
-        />
-        <input
-          name="password"
-          placeholder="Digite a sua senha"
-          onChange={handleChange}
-          type="password"
-          aria-label="Senha"
-        />
-        <button type="submit" disabled={loading || !isFormValid()}>
-          {loading ? "Carregando..." : "Entrar"}
-        </button>
-        <SubContainerSign>
-          <p>Não possui conta?</p>
-          <a href="/cadastro">Cadastre-se</a>
-        </SubContainerSign>
-      </Form>
-    </Container>
+    <div className="container">
+      <h1 className="title">Honey</h1>
+      <form onSubmit={handleSubmit} className="form">
+        <div className="input-group">
+          <label htmlFor="nome">Nome</label>
+          <input
+            type="text"
+            name="nome"
+            id="nome"
+            value={formData.nome}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="senha">Senha</label>
+          <input
+            type="password"
+            name="senha"
+            id="senha"
+            value={formData.senha}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="idade">Idade</label>
+          <input
+            type="number"
+            name="idade"
+            id="idade"
+            value={formData.idade}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="sexo">Sexo</label>
+          <select
+            name="sexo"
+            id="sexo"
+            value={formData.sexo}
+            onChange={handleChange}
+          >
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <button type="submit">Cadastrar</button>
+      </form>
+    </div>
   );
 };
 
-export default Cadastro;
+export default RegisterPage;
